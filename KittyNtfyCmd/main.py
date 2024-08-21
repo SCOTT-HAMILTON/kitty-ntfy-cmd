@@ -23,9 +23,21 @@ def unlock_file(lock_file):
     else:
         print("No lock to release.")
 
+def toggle_file(lock_file):
+    if os.path.exists(lock_file):
+        os.remove(lock_file)
+        print("File unlocked.")
+        return "unlocked"
+    else:
+        with open(lock_file, 'w') as f:
+            f.write("locked")
+        print("File locked.")
+        return "locked"
+
+
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python3 kitty_ntfy_cmd <allow|forbid>")
+        print("Usage: python3 kitty_ntfy_cmd <allow|forbid|toggle>")
         sys.exit(1)
 
     action = sys.argv[1].lower()
@@ -45,5 +57,21 @@ def main():
             app_name='kitty-ntfy-cmd',
             timeout=10
         )
+    elif action == "toggle":
+        final = toggle_file(LOCK_FILE)
+        if final == "locked":
+            notification.notify(
+                title='Activated',
+                message='Kitty commands ending notifications activated.',
+                app_name='kitty-ntfy-cmd',
+                timeout=10
+            )
+        else:
+            notification.notify(
+                title='Deactivated',
+                message='Kitty commands ending notifications deactivated.',
+                app_name='kitty-ntfy-cmd',
+                timeout=10
+            )
     else:
-        print("Unknown action. Use 'allow' or 'forbid'.")
+        print("Unknown action. Use 'allow', 'forbid' or 'toggle'.")
